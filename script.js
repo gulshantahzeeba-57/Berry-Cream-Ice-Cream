@@ -1,19 +1,18 @@
-// const API_URL = "http://localhost:3000/orders";
-
-const API_URL = "/bookings";
+// ===== 1. API CONFIGURATION =====
+const API_URL = "/orders";
 
 function openMenu(){
-  document.getElementById("mobileMenu").classList.add("active");
+  document.getElementById("mobileMenu")?.classList.add("active");
 }
 
 function closeMenu(){
-  document.getElementById("mobileMenu").classList.remove("active");
+  document.getElementById("mobileMenu")?.classList.remove("active");
 }
 
 /* auto close on link click */
 document.querySelectorAll("#mobileMenu a").forEach(link => {
   link.addEventListener("click", () => {
-    document.getElementById("mobileMenu").classList.remove("active");
+    document.getElementById("mobileMenu")?.classList.remove("active");
   });
 });
 
@@ -41,6 +40,7 @@ const box = document.getElementById("products");
 
 // Render products
 function renderProducts(){
+  if(!box) return;
   box.innerHTML = "";
   products.forEach((p,index)=>{
     box.innerHTML += `
@@ -53,6 +53,7 @@ function renderProducts(){
     `;
   });
 }
+
 // Add to cart
 function addToCart(index){
   const product = products[index];
@@ -66,76 +67,98 @@ function addToCart(index){
   updateCartDisplay();
 }
   
-   function increaseQty(index){
-      cart[index].qty += 1;
-      cartTotal += cart[index].product.price;
-      updateCartDisplay();
-  }
+function increaseQty(index){
+  cart[index].qty += 1;
+  cartTotal += cart[index].product.price;
+  updateCartDisplay();
+}
 
-  function decreaseQty(index){
-      if(cart[index].qty > 1){
-          cart[index].qty -= 1;
-          cartTotal -= cart[index].product.price;
-      } else {
-          cartTotal -= cart[index].product.price;
-          cart.splice(index, 1);
-      }
-      updateCartDisplay();
+function decreaseQty(index){
+  if(cart[index].qty > 1){
+    cart[index].qty -= 1;
+    cartTotal -= cart[index].product.price;
+  } else {
+    cartTotal -= cart[index].product.price;
+    cart.splice(index, 1);
   }
+  updateCartDisplay();
+}
 
 function updateCartDisplay(){
-  document.getElementById("cart-count").innerText = cartCount;
+  const cartCountEl = document.getElementById("cart-count");
+  if(cartCountEl) cartCountEl.innerText = cartCount;
+
   const itemsDiv = document.getElementById("cart-items");
-  itemsDiv.innerHTML = "";
+  if(itemsDiv) itemsDiv.innerHTML = "";
   let total = 0;
 
   cart.forEach((item, index)=>{
-    itemsDiv.innerHTML += `
-      <div class="cart-item">
-        <p>${item.product.name}</p>
-        <p>Rs ${item.product.price}</p>
-        <div class="qty-control">
-          <button class="qty-control-btn" onclick="decreaseQty(${index})">-</button>
-          <span class="number">${item.qty}</span>
-          <button class="qty-control-btn" onclick="increaseQty(${index})">+</button>
+    if(itemsDiv){
+      itemsDiv.innerHTML += `
+        <div class="cart-item">
+          <p>${item.product.name}</p>
+          <p>Rs ${item.product.price}</p>
+          <div class="qty-control">
+            <button class="qty-control-btn" onclick="decreaseQty(${index})">-</button>
+            <span class="number">${item.qty}</span>
+            <button class="qty-control-btn" onclick="increaseQty(${index})">+</button>
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }
     total += item.product.price * item.qty;
   });
 
-  document.getElementById("cart-modal-total").innerText = total;
-  document.getElementById("cart-total").innerText = total;
-  document.getElementById("checkout-btn").disabled = cart.length === 0;
+  const cartModalTotal = document.getElementById("cart-modal-total");
+  const cartTotalEl = document.getElementById("cart-total");
+  const checkoutBtn = document.getElementById("checkout-btn");
+
+  if(cartModalTotal) cartModalTotal.innerText = total;
+  if(cartTotalEl) cartTotalEl.innerText = total;
+  if(checkoutBtn) checkoutBtn.disabled = cart.length === 0;
 }
 
 // Cart modal
-function openCartModal(){ document.getElementById("cart-modal").style.display="flex"; }
-function closeCartModal(){ document.getElementById("cart-modal").style.display="none"; }
+function openCartModal(){ 
+  const modal = document.getElementById("cart-modal");
+  if(modal) modal.style.display="flex"; 
+}
+function closeCartModal(){ 
+  const modal = document.getElementById("cart-modal");
+  if(modal) modal.style.display="none"; 
+}
 
 // Checkout button below products
-document.getElementById("open-cart-btn").addEventListener("click", openCartModal);
+document.getElementById("open-cart-btn")?.addEventListener("click", openCartModal);
 
 // Order form modal
 function openForm(){ 
   if(cart.length === 0) return;
-  document.getElementById("order-form-modal").style.display="flex"; 
+  const modal = document.getElementById("order-form-modal");
+  if(modal) modal.style.display="flex"; 
   closeCartModal();
 }
-function closeForm(){ document.getElementById("order-form-modal").style.display="none"; }
-function closeConfirmation(){ document.getElementById("confirmation-modal").style.display="none"; }
+function closeForm(){ 
+  const modal = document.getElementById("order-form-modal");
+  if(modal) modal.style.display="none"; 
+}
+function closeConfirmation(){ 
+  const modal = document.getElementById("confirmation-modal");
+  if(modal) modal.style.display="none"; 
+}
 
 // Submit order
-document.getElementById("orderForm").addEventListener("submit", function(e){
+document.getElementById("orderForm")?.addEventListener("submit", async function(e){
   e.preventDefault();
-  const name = document.getElementById("name").value;
-  const email = document.getElementById("email").value;
-  const phone = document.getElementById("phone").value;
-  const address = document.getElementById("address").value;
+  const name = document.getElementById("name")?.value || "";
+  const email = document.getElementById("email")?.value || "";
+  const phone = document.getElementById("phone")?.value || "";
+  const address = document.getElementById("address")?.value || "";
 
   if(!name || !email || !phone || !address) return alert("Fill all fields!");
 
   const orderData = {
+    _id: Date.now().toString(),
     name, email, phone, address,
     items: cart.map(c=>({name:c.product.name, price:c.product.price, qty:c.qty})),
     total: cartTotal,
@@ -144,20 +167,52 @@ document.getElementById("orderForm").addEventListener("submit", function(e){
     time: new Date().toLocaleTimeString()
   };
 
-  fetch(API_URL, {
-    method:"POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify(orderData)
-  })
-  .then(res=>res.json())
-  .then(data=>{
-    console.log("Order saved:", data);
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(orderData)
+    });
+
+    let savedOrder = orderData;
+    if (response.ok) {
+      try {
+        const resJson = await response.json();
+        if (resJson && resJson._id) savedOrder = resJson;
+      } catch (err) {}
+    }
+
+    // Save to LocalStorage Backup for Admin Dashboard
+    let localData = JSON.parse(localStorage.getItem('berry_orders') || '[]');
+    localData.push(savedOrder);
+    localStorage.setItem('berry_orders', JSON.stringify(localData));
+
+    // Reset Form & Show Confirmation
     document.getElementById("orderForm").reset();
     closeForm();
-    document.getElementById("confirmation-modal").style.display="flex";
-    cart = []; cartCount=0; cartTotal=0;
+    const confirmModal = document.getElementById("confirmation-modal");
+    if(confirmModal) confirmModal.style.display="flex";
+    
+    // Reset Cart
+    cart = []; cartCount = 0; cartTotal = 0;
     updateCartDisplay();
-  }).catch(err=>console.log(err));
+
+  } catch (err) {
+    console.warn("Server connection error, saving to local backup:", err);
+
+    // Backup save if API call fails
+    let localData = JSON.parse(localStorage.getItem('berry_orders') || '[]');
+    localData.push(orderData);
+    localStorage.setItem('berry_orders', JSON.stringify(localData));
+
+    document.getElementById("orderForm").reset();
+    closeForm();
+    const confirmModal = document.getElementById("confirmation-modal");
+    if(confirmModal) confirmModal.style.display="flex";
+
+    cart = []; cartCount = 0; cartTotal = 0;
+    updateCartDisplay();
+  }
 });
 
 window.onload = function(){
