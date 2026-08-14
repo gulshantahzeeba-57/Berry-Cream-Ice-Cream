@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:3000/orders";
+// const API_URL = "http://localhost:3000/orders";
+
+const API_URL = "/bookings";
 
 function openMenu(){
   document.getElementById("mobileMenu").classList.add("active");
