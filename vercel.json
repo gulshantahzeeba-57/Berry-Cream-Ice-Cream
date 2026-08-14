@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/orders",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/orders/(.*)",
+      "destination": "/api/index.js"
+    }
+  ]
+}
