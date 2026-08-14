@@ -1,18 +1,16 @@
-const API_URL = "http://localhost:3000/orders";
-
-
 console.log("Login JS loaded");
 
-document.getElementById("loginForm").addEventListener("submit", function(e){
+document.getElementById("loginForm")?.addEventListener("submit", function(e){
     e.preventDefault();
 
-    const user = document.getElementById("username").value;
-    const pass = document.getElementById("password").value;
+    const user = document.getElementById("username")?.value;
+    const pass = document.getElementById("password")?.value;
 
-    if(user === "admin" && pass === "root"){
+    // Hardcoded check (Aap ke assignment/project ke liye bilkul sai hai)
+    if(user === "admin" && pass === "admin123"){
         localStorage.setItem("adminLoggedIn", "true");
-        window.location.href = "admin.html";
+        window.location.href = "admin.html"; // Agar file ka naam admin-dashboard.html hai toh woh likhein
     } else {
-        alert("Invalid Login");
+        alert("Invalid Username or Password!");
     }
 });
